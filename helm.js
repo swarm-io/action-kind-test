@@ -18,24 +18,18 @@ charts.forEach(chart => {
 })
 
 function pullChart(chart, version) {
-    exec(`helm pull ${chart} --version ${version}`, (error, stdout, stderr) => {
-        if (error) {
-            core.setFailed(error)
-            return;
-        }
-        if (stderr) {
-            core.setFailed(stderr)
-            return;
-        }
-        core.info(stdout)
-    });
+    runCommand(`helm pull ${chart} --version ${version}`)
 }
 
 function templateChart(chart, version, values) {
-    cmd = `helm template ${chart} --version ${version}`
+    let cmd = `helm template ${chart} --version ${version}`
     if (values) {
         cmd += ` -f ${values}`
     }
+    runCommand(cmd)
+}
+
+function runCommand(cmd) {
     exec(cmd, (error, stdout, stderr) => {
         if (error) {
             core.setFailed(error)
