@@ -42,11 +42,22 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Install Helm
+      uses: azure/setup-helm@v1
+      with:
+        version: v3.7.2
+    - name: Auth
+      id: auth
+      shell: bash
+      run: |
+        baseUrl=${{ inputs.region }}-docker.pkg.dev
+        echo '${{ inputs.credentials-json}}' | helm registry login -u _json_key --password-stdin https://$baseUrl
+        echo "::set-output name=baseUrl::$baseUrl"
     - name: Test helm.js
       shell: bash
       run: |
         echo 'helm-charts is: ${{ inputs.helm-charts }}'
-        repo=oci://${{ inputs.region }}-docker.pkg.dev/${{ inputs.project-id }}/${{ inputs.repository }}
+        repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
         node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo
 #    - name: Setup Cache
 #      uses: actions/cache@v2
