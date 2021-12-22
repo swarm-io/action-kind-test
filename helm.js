@@ -9,8 +9,9 @@ const repo = parsedArgs.repo
 
 charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
-    pullChart(fullUrl, chart.version)
-    templateChart(fullUrl, chart.version, chart.values)
+    pullChart(fullUrl, chart.version).then(() => {
+        templateChart(fullUrl, chart.version, chart.values).then(() => {})
+    })
     runCommand("echo testing one && sleep 5 && echo testing one done")
     runCommand("echo testing two && sleep 5 && echo testing two done")
     // cmd = `helm install ${chart.release_name}`
@@ -21,7 +22,7 @@ charts.forEach(chart => {
 
 function pullChart(chart, version) {
     const cmd = `helm pull ${chart} --version ${version}`
-    runCommand(cmd)
+    return runCommand(cmd)
 }
 
 function templateChart(chart, version, values) {
@@ -29,7 +30,7 @@ function templateChart(chart, version, values) {
     if (values) {
         cmd += ` -f ${values}`
     }
-    runCommand(cmd)
+    return runCommand(cmd)
 }
 
 function runCommand(cmd) {
