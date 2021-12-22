@@ -45,7 +45,7 @@ function templateChart(chart, version, values) {
 
 function createPullSecret(namespace) {
     // cmd = `kubectl -n ${namespace} create secret docker-registry regcred --docker-server=${registry} --docker-username=${username} --docker-password=${password}`
-    const cmd = `kubectl -n ${namespace} create secret generic regcred --from-file=.dockerconfigjson=~/.docker/config.json --type=kubernetes.io/dockerconfigjson`
+    const cmd = `kubectl -n ${namespace} create secret generic regcred --from-file=.dockerconfigjson=/home/runner/.docker/config.json --type=kubernetes.io/dockerconfigjson`
     return runCommand(cmd)
 }
 

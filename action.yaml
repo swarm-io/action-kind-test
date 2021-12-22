@@ -78,6 +78,8 @@ runs:
       run: |
         ls ~/.docker
         find ~ -name config.json
+        cat ~/.docker/config.json
+        cat /home/runner/.docker/config.json
     - name: Create Kind cluster
       uses: engineerd/setup-kind@v0.5.0
       with:
