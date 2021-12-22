@@ -9,6 +9,8 @@ console.log('Parsed Arguments:', parsedArgs)
 
 const charts = parsedArgs.charts
 console.log(`charts: ${charts}`)
+
+console.table(parsedArgs)
 // exec("ls -la", (error, stdout, stderr) => {
 //     if (error) {
 //         console.log(`error: ${error.message}`);
