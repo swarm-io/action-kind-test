@@ -4,9 +4,11 @@ const minimist = require('minimist')
 const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 const charts = JSON.parse(parsedArgs.charts)
+const repo = JSON.parse(parsedArgs.repo)
 
 charts.forEach(chart => {
-    console.log(`chart name is: ${chart.name}`)
+    cmd = `helm template ${repo}/${chart.name} --version ${chart.version}`
+    console.log(`cmd is ${cmd}`)
 })
 // exec("ls -la", (error, stdout, stderr) => {
 //     if (error) {
