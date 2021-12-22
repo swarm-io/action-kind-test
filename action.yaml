@@ -49,12 +49,16 @@ runs:
     - name: Auth
       id: auth
       shell: bash
+      env:
+        HELM_EXPERIMENTAL_OCI: 1
       run: |
         baseUrl=${{ inputs.region }}-docker.pkg.dev
         echo '${{ inputs.credentials-json}}' | helm registry login -u _json_key --password-stdin https://$baseUrl
         echo "::set-output name=baseUrl::$baseUrl"
     - name: Test helm.js
       shell: bash
+      env:
+        HELM_EXPERIMENTAL_OCI: 1
       run: |
         echo 'helm-charts is: ${{ inputs.helm-charts }}'
         repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
