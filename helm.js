@@ -11,6 +11,8 @@ charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
     pullChart(fullUrl, chart.version)
     templateChart(fullUrl, chart.version, chart.values)
+    runCommand("echo testing one && sleep 5 && echo testing one done")
+    runCommand("echo testing two && sleep 5 && echo testing two done")
     // cmd = `helm install ${chart.release_name}`
     // if (chart.namespace) {
     //     cmd += ` -n ${chart.namespace}`
