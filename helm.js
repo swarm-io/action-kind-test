@@ -15,9 +15,7 @@ charts.forEach(chart => {
     pullChart(fullUrl, chart.version).then(() => {
         core.info(`Template for chart ${fullUrl}:${chart.version}`)
         templateChart(fullUrl, chart.version, chart.values).then(() => {
-            installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout).then(() => {
-                createPullSecret(chart.namespace)
-            })
+            doInstall(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout)
         })
     })
 })
@@ -27,8 +25,24 @@ function pullChart(chart, version) {
     return runCommand(cmd)
 }
 
+function createNamespace(namespace) {
+    const cmd = `kubectl create namespace ${namespace}`
+    return runCommand(cmd)
+}
+
+function doInstall(release_name, namespace, chart, version, values, timeout) {
+    // create namespace
+    return createNamespace(namespace).then(() => {
+        // create pull secret
+        createPullSecret(chart.namespace).then(() => {
+            // install chart
+            return installChart(release_name, namespace, chart, version, values, timeout)
+        })
+    })
+}
+
 function installChart(release_name, namespace, chart, version, values, timeout) {
-    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --create-namespace --wait --timeout ${timeout}`
+    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --wait --timeout ${timeout}`
     if (values) {
         cmd += ` -f ${values}`
     }

@@ -74,12 +74,6 @@ runs:
         gcloud auth application-default print-access-token | helm registry login -u oauth2accesstoken --password-stdin https://$baseUrl
         gcloud auth configure-docker $baseUrl
         echo "::set-output name=baseUrl::$baseUrl"
-    - shell: bash
-      run: |
-        ls ~/.docker
-        find ~ -name config.json
-        cat ~/.docker/config.json
-        cat /home/runner/.docker/config.json
     - name: Create Kind cluster
       uses: engineerd/setup-kind@v0.5.0
       with:
