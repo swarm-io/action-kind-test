@@ -3,13 +3,9 @@ const minimist = require('minimist')
 
 const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
-const charts = parsedArgs.charts
-console.log(`charts type is: ${typeof charts}`);
-console.log(`charts is ${charts}`)
-const chartsList = JSON.parse(charts)
+const charts = JSON.parse(parsedArgs.charts)
 
-chartsList.forEach(chart => {
-    console.log(`chart is: ${JSON.stringify(chart)}`)
+charts.forEach(chart => {
     console.log(`chart name is: ${chart.name}`)
 })
 // exec("ls -la", (error, stdout, stderr) => {
