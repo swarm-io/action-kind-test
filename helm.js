@@ -4,7 +4,8 @@ const minimist = require('minimist')
 const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 const charts = parsedArgs.charts
-
+console.log(`charts type is: ${typeof charts}`);
+console.log(`charts is ${charts}`)
 charts.forEach(chart => {
     console.log('chart')
     console.log(`chart name: ${chart.name}`)
