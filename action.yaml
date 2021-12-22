@@ -1,21 +1,82 @@
-name: 'Hello World' # taken from https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
-description: 'Greet someone'
+name: 'Kind Test'
+description: 'Creates a kind cluster, installs helm charts, runs an app via skaffold, and runs tests'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
+  test-command:
+    description: 'What test command to run'
+    required: false
+    default: 'go test'
+  test-working-directory:
+    description: 'Directory to run tests from'
+    required: false
+    default: '.'
+  wait-for-ports:
+    description: 'Ports to wait for, used for dependent charts, if those charts need exposed local ports as part of testing. Comma separated list such as `8000,8001`'
+    required: false
+    default: ''
+  max-wait:
+    description: 'Max time in milliseconds to wait for readiness on ports set in `wait-for-ports`'
+    required: false
+    default: 300000
+  check-interval:
+    description: 'Interval to check readiness on ports set in `wait-for-ports`'
+    required: false
+    default: 5000
+  helm-charts:
+    description: 'Helm charts to install, a json formatted string, that is a list of objects'
+    required: false
+    default: '[]'
 runs:
   using: "composite"
   steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
+    - name: Test js
       shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
-      shell: bash
-    - run: ${{ github.action_path }}/goodbye.sh
-      shell: bash
+      run: |
+        node version
+        node helm.js
+#    - name: Setup Cache
+#      uses: actions/cache@v2
+#      with:
+#         In order:
+#         * Module download cache
+#         * Build cache (Linux)
+#        path: |
+#          ~/go/pkg/mod
+#          ~/.cache/go-build
+#        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+#        restore-keys: |
+#          ${{ runner.os }}-go-
+#    - name: Checkout
+#      uses: actions/checkout@v2
+#      with:
+#        ref: ${{ github.head_ref }}
+#    - name: Setup tools
+#      uses: yokawasa/action-setup-kube-tools@v0.7.1
+#      with:
+#        helm: '3.7.1'
+#        skaffold: '1.35.0'
+#    - name: Install Go
+#      uses: actions/setup-go@v2
+#      with:
+#        go-version: 1.17
+#    - name: Set up Docker Buildx
+#      uses: docker/setup-buildx-action@v1.6.0
+#    - name: Create Kind cluster
+#      uses: engineerd/setup-kind@v0.5.0
+#      with:
+#        version: "v0.11.1"
+#    - name: Run app via skaffold
+#      shell: bash
+#      run: |
+#        skaffold run --verbosity=info
+#    - name: Wait for ready
+#      if: inputs.wait-for-ports != ''
+#      uses: swarm-io/actions-wait-for-ports@v1
+#      with:
+#        ports: ${{ inputs.wait-for-ports }}
+#        max-wait: ${{ inputs.max-wait }}
+#        check-interval: ${{ inputs.check-interval }}
+#    - name: Run tests
+#      shell: bash
+#      working-directory: ${{ inputs.test-working-directory }}
+#      run: |
+#        ${{ inputs.test-command }}
