@@ -32,7 +32,7 @@ runs:
       shell: bash
       run: |
         node --version
-        node helm.js
+        node ${{ github.action_path }}/helm.js
 #    - name: Setup Cache
 #      uses: actions/cache@v2
 #      with:
