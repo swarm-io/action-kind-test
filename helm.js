@@ -6,8 +6,9 @@ const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 
 console.log('Parsed Arguments:', parsedArgs)
-console.table(parsedArgs)
 
+const charts = parsedArgs.charts
+console.log(`charts: ${charts}`)
 // exec("ls -la", (error, stdout, stderr) => {
 //     if (error) {
 //         console.log(`error: ${error.message}`);
