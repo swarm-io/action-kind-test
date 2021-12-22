@@ -42,10 +42,17 @@ inputs:
 runs:
   using: "composite"
   steps:
-    - name: Install Helm
-      uses: azure/setup-helm@v1
+    - name: Checkout
+      uses: actions/checkout@v2
       with:
-        version: v3.7.2
+        ref: ${{ github.head_ref }}
+    - name: Setup tools
+      uses: yokawasa/action-setup-kube-tools@v0.7.1
+      with:
+        helm: '3.7.2'
+        skaffold: '1.35.0'
+    - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v1.6.0
     - name: Auth
       id: auth
       shell: bash
@@ -55,7 +62,11 @@ runs:
         baseUrl=${{ inputs.region }}-docker.pkg.dev
         echo '${{ inputs.credentials-json }}' | helm registry login -u _json_key --password-stdin https://$baseUrl
         echo "::set-output name=baseUrl::$baseUrl"
-    - name: Test helm.js
+    - name: Create Kind cluster
+      uses: engineerd/setup-kind@v0.5.0
+      with:
+        version: "v0.11.1"
+    - name: Install charts
       shell: bash
       env:
         HELM_EXPERIMENTAL_OCI: 1
@@ -63,37 +74,6 @@ runs:
         echo 'helm-charts is: ${{ inputs.helm-charts }}'
         repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
         node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo
-#    - name: Setup Cache
-#      uses: actions/cache@v2
-#      with:
-#         In order:
-#         * Module download cache
-#         * Build cache (Linux)
-#        path: |
-#          ~/go/pkg/mod
-#          ~/.cache/go-build
-#        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
-#        restore-keys: |
-#          ${{ runner.os }}-go-
-#    - name: Checkout
-#      uses: actions/checkout@v2
-#      with:
-#        ref: ${{ github.head_ref }}
-#    - name: Setup tools
-#      uses: yokawasa/action-setup-kube-tools@v0.7.1
-#      with:
-#        helm: '3.7.1'
-#        skaffold: '1.35.0'
-#    - name: Install Go
-#      uses: actions/setup-go@v2
-#      with:
-#        go-version: 1.17
-#    - name: Set up Docker Buildx
-#      uses: docker/setup-buildx-action@v1.6.0
-#    - name: Create Kind cluster
-#      uses: engineerd/setup-kind@v0.5.0
-#      with:
-#        version: "v0.11.1"
 #    - name: Run app via skaffold
 #      shell: bash
 #      run: |

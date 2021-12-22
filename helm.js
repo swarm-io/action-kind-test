@@ -11,16 +11,21 @@ charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
     core.info(`Installing chart ${fullUrl}:${chart.version}`)
     pullChart(fullUrl, chart.version).then(() => {
-        templateChart(fullUrl, chart.version, chart.values)
+        // templateChart(fullUrl, chart.version, chart.values)
+        installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values)
     })
-    // cmd = `helm install ${chart.release_name}`
-    // if (chart.namespace) {
-    //     cmd += ` -n ${chart.namespace}`
-    // }
 })
 
 function pullChart(chart, version) {
     const cmd = `helm pull ${chart} --version ${version}`
+    return runCommand(cmd)
+}
+
+function installChart(release_name, namespace, chart, version, values) {
+    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version}`
+    if (values) {
+        cmd += ` -f ${values}`
+    }
     return runCommand(cmd)
 }
 
