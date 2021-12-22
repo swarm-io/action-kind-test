@@ -83,9 +83,12 @@ runs:
         repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
         node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo
     - name: Cluster status
+      if: always()
       shell: bash
       run: |
         kubectl get all --all-namespaces
+        kubectl -n event-stream get all
+        kubectl -n event-stream describe deployments
 #    - name: Run app via skaffold
 #      shell: bash
 #      run: |
