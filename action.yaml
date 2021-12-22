@@ -45,6 +45,7 @@ runs:
     - name: Test helm.js
       shell: bash
       run: |
+        echo 'helm-charts is: ${{ inputs.helm-charts }}'
         node ${{ github.action_path }}/helm.js --charts=${{ inputs.helm-charts }}
 #    - name: Setup Cache
 #      uses: actions/cache@v2
