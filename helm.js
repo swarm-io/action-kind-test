@@ -1,4 +1,4 @@
-const { exec } = require("child_process");
+const {exec} = require("child_process");
 const minimist = require('minimist')
 
 const args = process.argv.slice(2)
@@ -7,24 +7,33 @@ const charts = JSON.parse(parsedArgs.charts)
 const repo = parsedArgs.repo
 
 charts.forEach(chart => {
+    const fullUrl = `${repo}/${chart.name}`
+    pullChart(fullUrl, chart.version)
+    templateChart(fullUrl, version, chart.values)
     // cmd = `helm install ${chart.release_name}`
-    cmd = `helm template`
     // if (chart.namespace) {
     //     cmd += ` -n ${chart.namespace}`
     // }
-    cmd += ` ${repo}/${chart.name} --version ${chart.version}`
-    if (chart.values) {
-        cmd += ` -f ${chart.values}`
+})
+
+function pullChart(chart, version) {
+    exec(`helm pull ${chart} --version ${version}`)
+}
+
+function templateChart(chart, version, values) {
+    cmd = `helm template ${chart} --version ${version}`
+    if (values) {
+        cmd += ` -f ${values}`
     }
     exec(cmd, (error, stdout, stderr) => {
-    if (error) {
-        console.log(`error: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-    }
-    console.log(`stdout: ${stdout}`);
-});
-})
+        if (error) {
+            console.log(`error: ${error.message}`);
+            return;
+        }
+        if (stderr) {
+            console.log(`stderr: ${stderr}`);
+            return;
+        }
+        console.log(`stdout: ${stdout}`);
+    });
+}
