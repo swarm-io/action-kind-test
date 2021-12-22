@@ -42,7 +42,7 @@ inputs:
   helm-install-wait-timeout:
     description: 'How long to wait for installed charts to be healthy before failing'
     required: false
-    default: 1m
+    default: 3m
 runs:
   using: "composite"
   steps:
