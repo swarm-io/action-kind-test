@@ -12,7 +12,9 @@ charts.forEach(chart => {
     core.info(`Installing chart ${fullUrl}:${chart.version}`)
     pullChart(fullUrl, chart.version).then(() => {
         // templateChart(fullUrl, chart.version, chart.values)
-        installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values)
+        installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values).then(() => {
+            rolloutStatus(chart.namespace, chart.name)
+        })
     })
 })
 
@@ -26,6 +28,11 @@ function installChart(release_name, namespace, chart, version, values) {
     if (values) {
         cmd += ` -f ${values}`
     }
+    return runCommand(cmd)
+}
+
+function rolloutStatus(namespace, deployment) {
+    const cmd = `kubectl -n ${namespace} rollout status deployment/${deployment}`
     return runCommand(cmd)
 }
 
