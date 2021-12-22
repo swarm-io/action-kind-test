@@ -11,6 +11,8 @@ const charts = parsedArgs.charts
 console.log(`charts: ${charts}`)
 
 console.table(parsedArgs)
+
+console.log(`stringified charts: ${JSON.stringify(charts)}`)
 // exec("ls -la", (error, stdout, stderr) => {
 //     if (error) {
 //         console.log(`error: ${error.message}`);
