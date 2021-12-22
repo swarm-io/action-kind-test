@@ -1,4 +1,5 @@
 const {exec} = require("child_process");
+const core = require('@actions/core');
 const minimist = require('minimist')
 
 const args = process.argv.slice(2)
@@ -9,7 +10,7 @@ const repo = parsedArgs.repo
 charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
     pullChart(fullUrl, chart.version)
-    templateChart(fullUrl, version, chart.values)
+    templateChart(fullUrl, chart.version, chart.values)
     // cmd = `helm install ${chart.release_name}`
     // if (chart.namespace) {
     //     cmd += ` -n ${chart.namespace}`
