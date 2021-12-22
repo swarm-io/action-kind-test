@@ -4,7 +4,7 @@ const minimist = require('minimist')
 const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 const charts = JSON.parse(parsedArgs.charts)
-const repo = JSON.parse(parsedArgs.repo)
+const repo = parsedArgs.repo
 
 charts.forEach(chart => {
     cmd = `helm template ${repo}/${chart.name} --version ${chart.version}`
