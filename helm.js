@@ -34,7 +34,7 @@ function doInstall(release_name, namespace, chart, version, values, timeout) {
     // create namespace
     return createNamespace(namespace).then(() => {
         // create pull secret
-        createPullSecret(chart.namespace).then(() => {
+        createPullSecret(namespace).then(() => {
             // install chart
             return installChart(release_name, namespace, chart, version, values, timeout)
         })
