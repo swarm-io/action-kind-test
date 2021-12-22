@@ -40,12 +40,13 @@ function templateChart(chart, version, values) {
 function runCommand(cmd) {
     return new Promise((resolve, reject) => {
         exec(cmd, (error, stdout, stderr) => {
-            if (error || stderr) {
-                core.setFailed(error ? error : stderr)
-                reject(error ? error : stderr)
+            if (error) {
+                core.setFailed(error)
+                reject(error)
             } else {
-                core.info(stdout)
-                resolve(stdout)
+                const result = stdout ? stdout : stderr
+                core.info(result)
+                resolve(result)
             }
         });
     })
