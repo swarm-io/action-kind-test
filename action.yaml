@@ -90,9 +90,9 @@ runs:
       if: always()
       shell: bash
       run: |
-        kubectl get all --all-namespaces
-        kubectl -n event-stream get all
         kubectl -n event-stream describe deployments
+        kubectl -n event-stream describe pods
+        kubectl -n event-stream describe secrets
 #    - name: Run app via skaffold
 #      shell: bash
 #      run: |
