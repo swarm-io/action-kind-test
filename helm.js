@@ -6,9 +6,11 @@ const parsedArgs = minimist(args)
 const charts = parsedArgs.charts
 console.log(`charts type is: ${typeof charts}`);
 console.log(`charts is ${charts}`)
-charts.forEach(chart => {
-    console.log('chart')
-    console.log(`chart name: ${chart.name}`)
+const chartsList = JSON.parse(charts)
+
+chartsList.forEach(chart => {
+    console.log(`chart is: ${JSON.stringify(chart)}`)
+    console.log(`chart name is: ${chart.name}`)
 })
 // exec("ls -la", (error, stdout, stderr) => {
 //     if (error) {
