@@ -10,10 +10,10 @@ const repo = parsedArgs.repo
 charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
     pullChart(fullUrl, chart.version).then(() => {
-        templateChart(fullUrl, chart.version, chart.values).then(() => {})
+        templateChart(fullUrl, chart.version, chart.values)
     })
-    runCommand("echo testing one && sleep 5 && echo testing one done")
-    runCommand("echo testing two && sleep 5 && echo testing two done")
+    runCommand("sleep 5 && echo onesies")
+    runCommand("sleep 2 && echo twosies")
     // cmd = `helm install ${chart.release_name}`
     // if (chart.namespace) {
     //     cmd += ` -n ${chart.namespace}`
