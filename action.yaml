@@ -74,6 +74,10 @@ runs:
         echo 'helm-charts is: ${{ inputs.helm-charts }}'
         repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
         node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo
+    - name: Cluster status
+      shell: bash
+      run: |
+        kubectl get all --all-namespaces
 #    - name: Run app via skaffold
 #      shell: bash
 #      run: |

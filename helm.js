@@ -22,7 +22,7 @@ function pullChart(chart, version) {
 }
 
 function installChart(release_name, namespace, chart, version, values) {
-    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version}`
+    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --create-namespace`
     if (values) {
         cmd += ` -f ${values}`
     }
