@@ -6,15 +6,14 @@ const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 const charts = JSON.parse(parsedArgs.charts)
 const repo = parsedArgs.repo
+const timeout = parsedArgs.timeout
 
 charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
     core.info(`Installing chart ${fullUrl}:${chart.version}`)
     pullChart(fullUrl, chart.version).then(() => {
         // templateChart(fullUrl, chart.version, chart.values)
-        installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values).then(() => {
-            rolloutStatus(chart.namespace, chart.name)
-        })
+        installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout)
     })
 })
 
@@ -23,16 +22,11 @@ function pullChart(chart, version) {
     return runCommand(cmd)
 }
 
-function installChart(release_name, namespace, chart, version, values) {
-    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --create-namespace`
+function installChart(release_name, namespace, chart, version, values, timeout) {
+    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --create-namespace, --wait --timeout ${timeout}`
     if (values) {
         cmd += ` -f ${values}`
     }
-    return runCommand(cmd)
-}
-
-function rolloutStatus(namespace, deployment) {
-    const cmd = `kubectl -n ${namespace} rollout status deployment/${deployment}`
     return runCommand(cmd)
 }
 

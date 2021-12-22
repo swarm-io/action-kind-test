@@ -39,6 +39,10 @@ inputs:
     description: 'artifact registry repository'
     required: false
     default: 'charts'
+  helm-install-wait-timeout:
+    description: 'How long to wait for installed charts to be healthy before failing'
+    required: false
+    default: 1m
 runs:
   using: "composite"
   steps:
@@ -81,7 +85,7 @@ runs:
       run: |
         echo 'helm-charts is: ${{ inputs.helm-charts }}'
         repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
-        node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo
+        node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo --timeout ${{ inputs.helm-install-wait-timeout }}
     - name: Cluster status
       if: always()
       shell: bash
