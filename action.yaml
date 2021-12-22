@@ -60,7 +60,7 @@ runs:
       uses: google-github-actions/setup-gcloud@v0.3.0
       with:
         project_id: ${{ inputs.project-id }}
-    - name: Auth Helm
+    - name: Auth
       id: auth
       shell: bash
       env:
