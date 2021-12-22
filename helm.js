@@ -9,11 +9,11 @@ const repo = parsedArgs.repo
 charts.forEach(chart => {
     cmd = `helm install ${chart.release_name}`
     if (chart.namespace) {
-        cmd += `-n ${chart.namespace}`
+        cmd += ` -n ${chart.namespace}`
     }
-    cmd += `${repo}/${chart.name} --version ${chart.version}`
+    cmd += ` ${repo}/${chart.name} --version ${chart.version}`
     if (chart.values) {
-        cmd += `-f ${chart.values}`
+        cmd += ` -f ${chart.values}`
     }
     console.log(`cmd is ${cmd}`)
 })
