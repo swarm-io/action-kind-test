@@ -18,7 +18,17 @@ charts.forEach(chart => {
 })
 
 function pullChart(chart, version) {
-    exec(`helm pull ${chart} --version ${version}`)
+    exec(`helm pull ${chart} --version ${version}`, (error, stdout, stderr) => {
+        if (error) {
+            core.setFailed(error)
+            return;
+        }
+        if (stderr) {
+            core.setFailed(stderr)
+            return;
+        }
+        core.info(stdout)
+    });
 }
 
 function templateChart(chart, version, values) {
@@ -28,13 +38,13 @@ function templateChart(chart, version, values) {
     }
     exec(cmd, (error, stdout, stderr) => {
         if (error) {
-            console.log(`error: ${error.message}`);
+            core.setFailed(error)
             return;
         }
         if (stderr) {
-            console.log(`stderr: ${stderr}`);
+            core.setFailed(stderr)
             return;
         }
-        console.log(`stdout: ${stdout}`);
+        core.info(stdout)
     });
 }
