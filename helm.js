@@ -15,8 +15,8 @@ charts.forEach(chart => {
     pullChart(fullUrl, chart.version).then(() => {
         core.info(`Template for chart ${fullUrl}:${chart.version}`)
         templateChart(fullUrl, chart.version, chart.values).then(() => {
-            createPullSecret(chart.namespace).then(() => {
-                installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout)
+            installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout).then(() => {
+                createPullSecret(chart.namespace)
             })
         })
     })
