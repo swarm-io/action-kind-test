@@ -5,6 +5,7 @@ const minimist = require('minimist')
 const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 const charts = JSON.parse(parsedArgs.charts)
+const registry = parsedArgs.registry
 const repo = parsedArgs.repo
 const timeout = parsedArgs.timeout
 
@@ -12,8 +13,12 @@ charts.forEach(chart => {
     const fullUrl = `${repo}/${chart.name}`
     core.info(`Installing chart ${fullUrl}:${chart.version}`)
     pullChart(fullUrl, chart.version).then(() => {
-        // templateChart(fullUrl, chart.version, chart.values)
-        installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout)
+        core.info(`Template for chart ${fullUrl}:${chart.version}`)
+        templateChart(fullUrl, chart.version, chart.values).then(() => {
+            createPullSecret(chart.namespace).then(() => {
+                installChart(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout)
+            })
+        })
     })
 })
 
@@ -35,6 +40,12 @@ function templateChart(chart, version, values) {
     if (values) {
         cmd += ` -f ${values}`
     }
+    return runCommand(cmd)
+}
+
+function createPullSecret(namespace) {
+    // cmd = `kubectl -n ${namespace} create secret docker-registry regcred --docker-server=${registry} --docker-username=${username} --docker-password=${password}`
+    const cmd = `kubectl -n ${namespace} create secret generic regcred --from-file=.dockerconfigjson=~/.docker/config.json --type=kubernetes.io/dockerconfigjson`
     return runCommand(cmd)
 }
 
