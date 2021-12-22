@@ -25,14 +25,27 @@ inputs:
     description: 'Helm charts to install, a json formatted string, that is a list of objects'
     required: false
     default: '[]'
+  credentials-json:
+    description: 'Gcloud service account credentials json. This is required if you are installing helm charts'
+    required: false
+  project-id:
+    description: 'gcloud project id. This is required if you are installing helm charts'
+    required: true
+  region:
+    description: 'artifact registry region'
+    required: false
+    default: 'us-west1'
+  repository:
+    description: 'artifact registry repository'
+    required: false
+    default: 'charts'
 runs:
   using: "composite"
   steps:
-    - name: Test js
+    - name: Test helm.js
       shell: bash
       run: |
-        node --version
-        node ${{ github.action_path }}/helm.js
+        node ${{ github.action_path }}/helm.js ${{ inputs.helm-charts }}
 #    - name: Setup Cache
 #      uses: actions/cache@v2
 #      with:

@@ -1,13 +1,21 @@
 const { exec } = require("child_process");
+const minimist = require('minimist')
 
-exec("ls -la", (error, stdout, stderr) => {
-    if (error) {
-        console.log(`error: ${error.message}`);
-        return;
-    }
-    if (stderr) {
-        console.log(`stderr: ${stderr}`);
-        return;
-    }
-    console.log(`stdout: ${stdout}`);
-});
+const args = process.argv.slice(2)
+
+const parsedArgs = minimist(args)
+
+console.log('Parsed Arguments:', parsedArgs)
+console.table(parsedArgs)
+
+// exec("ls -la", (error, stdout, stderr) => {
+//     if (error) {
+//         console.log(`error: ${error.message}`);
+//         return;
+//     }
+//     if (stderr) {
+//         console.log(`stderr: ${stderr}`);
+//         return;
+//     }
+//     console.log(`stdout: ${stdout}`);
+// });
