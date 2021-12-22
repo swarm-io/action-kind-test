@@ -30,19 +30,50 @@ function createNamespace(namespace) {
     return runCommand(cmd)
 }
 
-function doInstall(release_name, namespace, chart, version, values, timeout) {
-    // create namespace
-    return createNamespace(namespace).then(() => {
-        // create pull secret
-        createPullSecret(namespace).then(() => {
-            // install chart
-            return installChart(release_name, namespace, chart, version, values, timeout)
+function doInstall(release_name, namespace, chartName, chartUrl, version, values, timeout) {
+    loadImageToKind(chartUrl, chartName, version, values).then(() => {
+        return installChart(release_name, namespace, chartUrl, version, values, timeout)
+    })
+}
+
+// function doInstall(release_name, namespace, chart, version, values, timeout) {
+//     // create namespace
+//     return createNamespace(namespace).then(() => {
+//         // create pull secret
+//         createPullSecret(namespace).then(() => {
+//             // install chart
+//             return installChart(release_name, namespace, chart, version, values, timeout)
+//         })
+//     })
+// }
+
+function loadImageToKind(chartUrl, chartName, version, values) {
+    templateChart(chartUrl, version, values).then(template => {
+        parseImageFromTemplate(template, chartName).then(image => {
+            pullImage(image).then(() => {
+                loadImage(image)
+            })
         })
     })
 }
 
-function installChart(release_name, namespace, chart, version, values, timeout) {
-    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --wait --timeout ${timeout}`
+function loadImage(image) {
+    cmd = `kind load docker-image ${image}`
+    return runCommand(cmd)
+}
+
+function pullImage(image) {
+    cmd = `docker pull ${image}`
+    return runCommand(cmd)
+}
+
+function parseImageFromTemplate(template, chartName) {
+    const cmd = `echo '${template}' | grep -o 'us-west1-docker.pkg.dev/swarm.*${chartName}' | tr -d '"'`
+    return runCommand(cmd)
+}
+
+function installChart(release_name, namespace, chartUrl, version, values, timeout) {
+    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --create-namespace --wait --timeout ${timeout}`
     if (values) {
         cmd += ` -f ${values}`
     }
