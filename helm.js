@@ -13,6 +13,9 @@ console.log(`charts: ${charts}`)
 console.table(parsedArgs)
 
 console.log(`stringified charts: ${JSON.stringify(charts)}`)
+
+const chartsObj = JSON.parse(charts)
+console.log(`first chart name: ${chartsObj[0].name}`)
 // exec("ls -la", (error, stdout, stderr) => {
 //     if (error) {
 //         console.log(`error: ${error.message}`);
