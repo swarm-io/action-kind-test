@@ -31,7 +31,7 @@ runs:
     - name: Test js
       shell: bash
       run: |
-        node version
+        node --version
         node helm.js
 #    - name: Setup Cache
 #      uses: actions/cache@v2
