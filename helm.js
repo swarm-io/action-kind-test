@@ -13,9 +13,16 @@ const path = require('path');
 
 charts.forEach(chart => {
     const chartUrl = `${repo}/${chart.name}`
+    fillDefaults(chart)
     core.info(`Installing chart ${chartUrl}:${chart.version}`)
     doInstall(chartUrl, chart)
 })
+
+function fillDefaults(chart) {
+    chart.version = chart.version ? chart.version : 'stable'
+    chart.release_name = chart.release_name ? chart.release_name : chart.name
+    chart.namespace = chart.namespace ? chart.namespace : chart.name
+}
 
 function doInstall(chartUrl, chart) {
     loadImageToKind(chartUrl, chart).then(() => {
