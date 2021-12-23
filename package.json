@@ -19,6 +19,7 @@
   "homepage": "https://github.com/swarm-io/action-kind-test#readme",
   "dependencies": {
     "@actions/core": "^1.6.0",
+    "js-yaml": "^4.1.0",
     "minimist": "^1.2.5"
   }
 }

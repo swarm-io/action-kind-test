@@ -1,81 +1,60 @@
 const {exec} = require("child_process");
 const core = require('@actions/core');
 const minimist = require('minimist')
-
+const yaml = require('js-yaml');
+const fs   = require('fs');
+const chartDownloadDir = 'chart-download'
 const args = process.argv.slice(2)
 const parsedArgs = minimist(args)
 const charts = JSON.parse(parsedArgs.charts)
-const registry = parsedArgs.registry
 const repo = parsedArgs.repo
 const timeout = parsedArgs.timeout
+const path = require('path');
 
 charts.forEach(chart => {
-    const fullUrl = `${repo}/${chart.name}`
-    core.info(`Installing chart ${fullUrl}:${chart.version}`)
-    pullChart(fullUrl, chart.version).then(() => {
-        core.info(`Template for chart ${fullUrl}:${chart.version}`)
-        templateChart(fullUrl, chart.version, chart.values).then(() => {
-            doInstall(chart.release_name, chart.namespace, fullUrl, chart.version, chart.values, timeout)
-        })
-    })
+    const chartUrl = `${repo}/${chart.name}`
+    core.info(`Installing chart ${chartUrl}:${chart.version}`)
+    doInstall(chartUrl, chart)
 })
 
-function pullChart(chart, version) {
-    const cmd = `helm pull ${chart} --version ${version}`
-    return runCommand(cmd)
-}
-
-function createNamespace(namespace) {
-    const cmd = `kubectl create namespace ${namespace}`
-    return runCommand(cmd)
-}
-
-function doInstall(release_name, namespace, chartName, chartUrl, version, values, timeout) {
-    loadImageToKind(chartUrl, chartName, version, values).then(() => {
-        return installChart(release_name, namespace, chartUrl, version, values, timeout)
+function doInstall(chartUrl, chart) {
+    loadImageToKind(chartUrl, chart).then(() => {
+        return installChart(chartUrl, chart, timeout)
     })
 }
 
-// function doInstall(release_name, namespace, chart, version, values, timeout) {
-//     // create namespace
-//     return createNamespace(namespace).then(() => {
-//         // create pull secret
-//         createPullSecret(namespace).then(() => {
-//             // install chart
-//             return installChart(release_name, namespace, chart, version, values, timeout)
-//         })
-//     })
-// }
+function pullChart(chartUrl, chart) {
+    const cmd = `helm pull ${chartUrl} --version ${chart.version} --untar --untardir ${chartDownloadDir}`
+    return runCommand(cmd)
+}
 
-function loadImageToKind(chartUrl, chartName, version, values) {
-    templateChart(chartUrl, version, values).then(template => {
-        parseImageFromTemplate(template, chartName).then(image => {
-            pullImage(image).then(() => {
-                loadImage(image)
+function loadImageToKind(chartUrl, chart) {
+    // pull chart
+    return pullChart(chartUrl, chart).then(() => {
+        const image = getChartImage()
+        pullImage(image).then(() => {
+            loadImage(image).then(() => {
+                core.info(`loaded image ${image} to kind cluster`)
             })
         })
     })
 }
 
 function loadImage(image) {
-    cmd = `kind load docker-image ${image}`
+    const cmd = `kind load docker-image ${image}`
     return runCommand(cmd)
 }
 
 function pullImage(image) {
-    cmd = `docker pull ${image}`
+    core.info(`pulling docker image ${image}`)
+    const cmd = `docker pull ${image}`
     return runCommand(cmd)
 }
 
-function parseImageFromTemplate(template, chartName) {
-    const cmd = `echo '${template}' | grep -o 'us-west1-docker.pkg.dev/swarm.*${chartName}' | tr -d '"'`
-    return runCommand(cmd)
-}
-
-function installChart(release_name, namespace, chartUrl, version, values, timeout) {
-    let cmd = `helm install ${release_name} -n ${namespace} ${chart} --version ${version} --create-namespace --wait --timeout ${timeout}`
-    if (values) {
-        cmd += ` -f ${values}`
+function installChart(chartUrl, chart, timeout) {
+    let cmd = `helm install ${chart.release_name} -n ${chart.namespace} ${chartUrl} --version ${chart.version} --create-namespace --wait --timeout ${timeout}`
+    if (chart.values) {
+        cmd += ` -f ${chart.values}`
     }
     return runCommand(cmd)
 }
@@ -85,12 +64,6 @@ function templateChart(chart, version, values) {
     if (values) {
         cmd += ` -f ${values}`
     }
-    return runCommand(cmd)
-}
-
-function createPullSecret(namespace) {
-    // cmd = `kubectl -n ${namespace} create secret docker-registry regcred --docker-server=${registry} --docker-username=${username} --docker-password=${password}`
-    const cmd = `kubectl -n ${namespace} create secret generic regcred --from-file=.dockerconfigjson=/home/runner/.docker/config.json --type=kubernetes.io/dockerconfigjson`
     return runCommand(cmd)
 }
 
@@ -107,4 +80,32 @@ function runCommand(cmd) {
             }
         });
     })
+}
+
+function getChartImage() {
+    const downloadedChartPath = getDownloadedChartPath()
+    const chartYaml = getChartYaml(downloadedChartPath)
+    const values = getValuesYaml(downloadedChartPath)
+    return `${values.image.repository}:${chartYaml.appVersion}`
+}
+
+function getChartYaml(path) {
+    return yaml.load(fs.readFileSync(`${path}/Chart.yaml`, 'utf8'))
+}
+
+function getValuesYaml(path) {
+    return yaml.load(fs.readFileSync(`${path}/values.yaml`, 'utf8'))
+}
+
+function getDownloadedChartPath() {
+    const files = fs.readdirSync(chartDownloadDir)
+    return path.resolve(chartDownloadDir, files[0])
+}
+
+function removeChartDownloadDirectory() {
+    fs.rm(chartDownloadDir, { recursive: true, force: true }, (err) => {
+        if (err) {
+            core.setFailed(err)
+        }
+    });
 }
