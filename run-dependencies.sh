@@ -7,7 +7,7 @@ mkdir dependencies && cd dependencies
 
 for i in ${dependencies//,/ }
 do
-  gh repo clone ${GITHUB_REPOSITORY_OWNER}/$i
+  git clone https://${GITHUB_TOKEN}@github.com/swarm-io/event-stream-coordinator.git
   cd $i
   pwd
   ls

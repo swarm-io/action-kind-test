@@ -67,15 +67,6 @@ runs:
       with:
         token: ${{ inputs.token }}
         path: app
-    - name: test clone
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
-      shell: bash
-      run: |
-        env
-        mkdir derp && cd derp
-        git clone https://${GITHUB_TOKEN}@github.com/swarm-io/event-stream-coordinator.git
-        cd .. & rm -rf derp
     - name: Setup tools
       uses: yokawasa/action-setup-kube-tools@v0.7.1
       with:
@@ -110,6 +101,8 @@ runs:
         version: "v0.11.1"
     - name: Run Dependencies
       if: inputs.dependencies != ''
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
       run: ${{ github.action_path }}/run-dependencies.sh ${{ inputs.dependencies }}
 #    - name: Install dependent charts
