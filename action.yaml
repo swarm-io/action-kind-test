@@ -67,6 +67,12 @@ runs:
       with:
         token: ${{ inputs.token }}
         path: app
+    - name: test clone
+      shell: bash
+      run: |
+        mkdir derp && cd derp
+        git clone https://github.com/swarm-io/event-stream-coordinator.git
+        cd .. & rm -rf derp
     - name: Setup tools
       uses: yokawasa/action-setup-kube-tools@v0.7.1
       with:
