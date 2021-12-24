@@ -67,13 +67,12 @@ runs:
       with:
         token: ${{ inputs.token }}
         path: app
-    - uses: fregante/setup-git-user@v1
+#    - uses: fregante/setup-git-user@v1
     - name: test clone
       shell: bash
       run: |
-        export GITHUB_TOKEN=${{ inputs.token }}
-        echo "token is $GITHUB_TOKEN"
         mkdir derp && cd derp
+        echo ${{ inputs.token }} | gh auth login --with-token
         gh repo clone swarm-io/event-stream-coordinator
         cd .. & rm -rf derp
     - name: Setup tools
