@@ -85,6 +85,10 @@ runs:
       uses: google-github-actions/setup-gcloud@v0.3.0
       with:
         project_id: ${{ inputs.project-id }}
+    - name: Auth docker to GAR
+      shell: bash
+      run: |
+        gcloud auth configure-docker ${{ inputs.region }}-docker.pkg.dev
 #    - name: Auth
 #      id: auth
 #      shell: bash
@@ -103,6 +107,7 @@ runs:
       if: inputs.dependencies != ''
       env:
         GITHUB_TOKEN: ${{ inputs.token }}
+        HELM_EXPERIMENTAL_OCI: 1
       shell: bash
       run: ${{ github.action_path }}/run-dependencies.sh ${{ inputs.dependencies }}
 #    - name: Install dependent charts
@@ -117,6 +122,7 @@ runs:
     - name: Run app via skaffold
       env:
         SKAFFOLD_ACTIONS: true
+        HELM_EXPERIMENTAL_OCI: 1
       shell: bash
       run: |
         skaffold run --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
