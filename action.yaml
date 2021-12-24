@@ -58,8 +58,7 @@ runs:
       shell: bash
       run: |
         mkdir derp && cd derp
-        echo ${{ inputs.token }} | gh auth login --with-token
-        gh repo clone swarm-io/event-stream-coordinator
+        git clone https://${{ inputs.token }}@github.com/swarm-io/event-stream-coordinator.git
         cd .. & rm -rf derp
     - name: Cache
       uses: actions/cache@v2
