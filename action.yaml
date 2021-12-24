@@ -128,6 +128,7 @@ runs:
         SKAFFOLD_ACTIONS: true
         HELM_EXPERIMENTAL_OCI: 1
       shell: bash
+      working-directory: app
       run: |
         skaffold run --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
     - name: Wait for ready
@@ -139,7 +140,7 @@ runs:
         check-interval: ${{ inputs.check-interval }}
     - name: Run tests
       shell: bash
-      working-directory: ${{ inputs.test-working-directory }}
+      working-directory: app/${{ inputs.test-working-directory }}
       run: |
         ${{ inputs.test-command }}
     - name: Report status on failure
