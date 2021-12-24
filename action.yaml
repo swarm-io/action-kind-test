@@ -67,6 +67,7 @@ runs:
       with:
         token: ${{ inputs.token }}
         path: app
+    - uses: fregante/setup-git-user@v1
     - name: test clone
       shell: bash
       run: |
