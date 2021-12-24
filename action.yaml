@@ -105,6 +105,8 @@ runs:
 #        repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
 #        node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo --timeout ${{ inputs.helm-install-wait-timeout }}
     - name: Run app via skaffold
+      env:
+        SKAFFOLD_ACTIONS: true
       shell: bash
       run: |
         skaffold run --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
