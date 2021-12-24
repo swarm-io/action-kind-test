@@ -8,7 +8,8 @@ mkdir dependencies && cd dependencies
 for i in ${dependencies//,/ }
 do
 #  gh repo clone ${GITHUB_REPOSITORY_OWNER}/$i
-  git clone https://github.com/${GITHUB_REPOSITORY_OWNER}/$i.git
+#  git clone https://github.com/${GITHUB_REPOSITORY_OWNER}/$i.git
+  git clone git@github.com:${GITHUB_REPOSITORY_OWNER}/$i.git
   cd $i
   pwd
   ls
