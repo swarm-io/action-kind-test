@@ -1,6 +1,10 @@
 name: 'Kind Test'
 description: 'Creates a kind cluster, installs helm charts, runs an app via skaffold, and runs tests'
 inputs:
+  token:
+    description: 'Github token, if there are dependencies, this should be a PAT so that the other repos can be cloned'
+    required: false
+    default: github.token
   test-command:
     description: 'What test command to run'
     required: false
@@ -43,13 +47,18 @@ inputs:
     description: 'How long to wait for installed charts to be healthy before failing'
     required: false
     default: 3m
+  dependencies:
+    description: 'Other git repos in this organization to clone and run skaffold for. Should be a comma separated list of short repository names, excluding the organization'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
     - name: Checkout
       uses: actions/checkout@v2
       with:
-        ref: ${{ github.head_ref }}
+        token: ${{ inputs.token }}
+        path: app
     - name: Setup tools
       uses: yokawasa/action-setup-kube-tools@v0.7.1
       with:
@@ -60,37 +69,45 @@ runs:
     - uses: google-github-actions/auth@v0
       with:
         credentials_json: ${{ inputs.credentials-json }}
+    - id: auth
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ inputs.credentials-json }}
     - name: Setup gcloud
       uses: google-github-actions/setup-gcloud@v0.3.0
       with:
         project_id: ${{ inputs.project-id }}
-    - name: Auth
-      id: auth
-      shell: bash
-      env:
-        HELM_EXPERIMENTAL_OCI: 1
-      run: |
-        baseUrl=${{ inputs.region }}-docker.pkg.dev
-        gcloud auth application-default print-access-token | helm registry login -u oauth2accesstoken --password-stdin https://$baseUrl
-        gcloud auth configure-docker $baseUrl
-        echo "::set-output name=baseUrl::$baseUrl"
+#    - name: Auth
+#      id: auth
+#      shell: bash
+#      env:
+#        HELM_EXPERIMENTAL_OCI: 1
+#      run: |
+#        baseUrl=${{ inputs.region }}-docker.pkg.dev
+#        gcloud auth application-default print-access-token | helm registry login -u oauth2accesstoken --password-stdin https://$baseUrl
+#        gcloud auth configure-docker $baseUrl
+#        echo "::set-output name=baseUrl::$baseUrl"
     - name: Create Kind cluster
       uses: engineerd/setup-kind@v0.5.0
       with:
         version: "v0.11.1"
-    - name: Install dependent charts
-      if: inputs.helm-charts != '[]'
+    - name: Run Dependencies
+      if: inputs.dependencies != ''
       shell: bash
-      env:
-        HELM_EXPERIMENTAL_OCI: 1
-      run: |
-        echo 'helm-charts is: ${{ inputs.helm-charts }}'
-        repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
-        node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo --timeout ${{ inputs.helm-install-wait-timeout }}
+      run: ${{ github.action_path }}/run-dependencies.sh
+#    - name: Install dependent charts
+#      if: inputs.helm-charts != '[]'
+#      shell: bash
+#      env:
+#        HELM_EXPERIMENTAL_OCI: 1
+#      run: |
+#        echo 'helm-charts is: ${{ inputs.helm-charts }}'
+#        repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
+#        node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo --timeout ${{ inputs.helm-install-wait-timeout }}
     - name: Run app via skaffold
       shell: bash
       run: |
-        skaffold run --port-forward=user --verbosity=info > skaffold.txt &
+        skaffold run --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
     - name: Wait for ready
       if: inputs.wait-for-ports != ''
       uses: swarm-io/actions-wait-for-ports@v1
@@ -108,4 +125,8 @@ runs:
       shell: bash
       run: |
         kubectl get all --all-namespaces
-        cat skaffold.txt
+        for i in ${GITHUB_WORKSPACE}/skaffold-logs/*.txt
+        do
+          echo "logs for $i"
+          cat $i
+        done
