@@ -19,7 +19,7 @@ charts.forEach(chart => {
 })
 
 function fillDefaults(chart) {
-    chart.version = chart.version ? chart.version : 'stable'
+    chart.version = chart.version ? chart.version : 'alpha'
     chart.release_name = chart.release_name ? chart.release_name : chart.name
     chart.namespace = chart.namespace ? chart.namespace : chart.name
 }
