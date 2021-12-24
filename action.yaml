@@ -68,10 +68,10 @@ runs:
         token: ${{ inputs.token }}
         path: app
     - name: test clone
-      env:
-        GITHUB_TOKEN: ${{ inputs.token }}
       shell: bash
       run: |
+        export GITHUB_TOKEN=${{ inputs.token }}
+        echo "token is $GITHUB_TOKEN"
         mkdir derp && cd derp
         gh repo clone swarm-io/event-stream-coordinator
         cd .. & rm -rf derp
