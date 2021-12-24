@@ -149,7 +149,7 @@ runs:
       run: |
         ${{ inputs.test-command }}
     - name: Report status on failure
-      if: failure()
+      if: always()
       shell: bash
       run: |
         kubectl get all --all-namespaces
