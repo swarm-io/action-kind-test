@@ -54,6 +54,13 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: test clone
+      shell: bash
+      run: |
+        mkdir derp && cd derp
+        echo ${{ inputs.token }} | gh auth login --with-token
+        gh repo clone swarm-io/event-stream-coordinator
+        cd .. & rm -rf derp
     - name: Cache
       uses: actions/cache@v2
       with:
@@ -67,14 +74,6 @@ runs:
       with:
         token: ${{ inputs.token }}
         path: app
-#    - uses: fregante/setup-git-user@v1
-    - name: test clone
-      shell: bash
-      run: |
-        mkdir derp && cd derp
-        echo ${{ inputs.token }} | gh auth login --with-token
-        gh repo clone swarm-io/event-stream-coordinator
-        cd .. & rm -rf derp
     - name: Setup tools
       uses: yokawasa/action-setup-kube-tools@v0.7.1
       with:
