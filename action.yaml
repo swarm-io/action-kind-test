@@ -73,7 +73,7 @@ runs:
       shell: bash
       run: |
         mkdir derp && cd derp
-        gh repo clone ${GITHUB_REPOSITORY_OWNER}/event-stream-coordinator
+        gh repo clone swarm-io/event-stream-coordinator
         cd .. & rm -rf derp
     - name: Setup tools
       uses: yokawasa/action-setup-kube-tools@v0.7.1
