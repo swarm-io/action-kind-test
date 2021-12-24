@@ -54,6 +54,14 @@ inputs:
 runs:
   using: "composite"
   steps:
+    - name: Cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.skaffold/cache
+        key: ${{ runner.os }}-skaffold-${{ hashFiles('**/skaffold.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-skaffold-
     - name: Checkout
       uses: actions/checkout@v2
       with:
@@ -94,7 +102,7 @@ runs:
     - name: Run Dependencies
       if: inputs.dependencies != ''
       shell: bash
-      run: ${{ github.action_path }}/run-dependencies.sh
+      run: ${{ github.action_path }}/run-dependencies.sh ${{ inputs.dependencies }}
 #    - name: Install dependent charts
 #      if: inputs.helm-charts != '[]'
 #      shell: bash
