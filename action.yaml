@@ -5,6 +5,10 @@ inputs:
     description: 'Github token, if there are dependencies, this should be a PAT so that the other repos can be cloned'
     required: false
     default: github.token
+  ref:
+    description: 'Git ref to use. Defaults to head_ref to account for buf-generate pushing changes'
+    required: false
+    default: github.head_ref
   test-command:
     description: 'What test command to run'
     required: false
@@ -62,6 +66,7 @@ runs:
       uses: actions/checkout@v2
       with:
         token: ${{ inputs.token }}
+        ref: ${{ inputs.ref }}
         path: app
     - name: Setup Go
       if: hashFiles('app/go.mod') != '' # rudimentary file existence check
