@@ -1,21 +1,165 @@
-name: 'Hello World' # taken from https://docs.github.com/en/actions/creating-actions/creating-a-composite-action
-description: 'Greet someone'
+name: 'Kind Test'
+description: 'Creates a kind cluster, installs helm charts, runs an app via skaffold, and runs tests'
 inputs:
-  who-to-greet:  # id of input
-    description: 'Who to greet'
-    required: true
-    default: 'World'
-outputs:
-  random-number:
-    description: "Random number"
-    value: ${{ steps.random-number-generator.outputs.random-id }}
+  token:
+    description: 'Github token, if there are dependencies, this should be a PAT so that the other repos can be cloned'
+    required: false
+    default: github.token
+  test-command:
+    description: 'What test command to run'
+    required: false
+    default: 'go test'
+  test-working-directory:
+    description: 'Directory to run tests from'
+    required: false
+    default: 'test'
+  wait-for-ports:
+    description: 'Ports to wait for, used for dependent charts, if those charts need exposed local ports as part of testing. Comma separated list such as `8000,8001`'
+    required: false
+    default: ''
+  max-wait:
+    description: 'Max time in milliseconds to wait for readiness on ports set in `wait-for-ports`'
+    required: false
+    default: 300000
+  check-interval:
+    description: 'Interval to check readiness on ports set in `wait-for-ports`'
+    required: false
+    default: 5000
+  helm-charts:
+    description: 'Helm charts to install, a json formatted string, that is a list of objects'
+    required: false
+    default: '[]'
+  credentials-json:
+    description: 'Gcloud service account credentials json. This is required if you are installing helm charts'
+    required: false
+  project-id:
+    description: 'gcloud project id. This is required if you are installing helm charts'
+    required: false
+  region:
+    description: 'artifact registry region'
+    required: false
+    default: 'us-west1'
+  repository:
+    description: 'artifact registry repository'
+    required: false
+    default: 'charts'
+  helm-install-wait-timeout:
+    description: 'How long to wait for installed charts to be healthy before failing'
+    required: false
+    default: 3m
+  dependencies:
+    description: 'Other git repos in this organization to clone and run skaffold for. Should be a comma separated list of short repository names, excluding the organization'
+    required: false
+    default: ''
+  sleep:
+    description: 'Seconds to sleep before running tests'
+    required: false
+    default: 10
 runs:
   using: "composite"
   steps:
-    - run: echo Hello ${{ inputs.who-to-greet }}.
+    - name: Checkout
+      uses: actions/checkout@v2
+      with:
+        token: ${{ inputs.token }}
+        path: app
+    - name: Setup Go
+      if: hashFiles('app/go.mod') != '' # rudimentary file existence check
+      uses: actions/setup-go@v2
+      with:
+        go-version: '1.17.x'
+    - name: Setup Go Cache
+      if: hashFiles('app/go.mod') != '' # rudimentary file existence check
+      uses: actions/cache@v2
+      with:
+        # * Module download cache
+        # * Build cache (Linux)
+        path: |
+          ~/go/pkg/mod
+          ~/.cache/go-build
+        key: ${{ runner.os }}-go-${{ hashFiles('**/go.sum') }}
+        restore-keys: |
+          ${{ runner.os }}-go-
+    - name: Setup skaffold cache
+      uses: actions/cache@v2
+      with:
+        path: |
+          ~/.skaffold/cache
+        key: ${{ runner.os }}-skaffold-${{ hashFiles('**/skaffold.yaml') }}
+        restore-keys: |
+          ${{ runner.os }}-skaffold-
+    - name: Setup tools
+      uses: yokawasa/action-setup-kube-tools@v0.7.1
+      with:
+        helm: '3.7.2'
+        skaffold: '1.35.0'
+    - name: Set up Docker Buildx
+      uses: docker/setup-buildx-action@v1.6.0
+    - uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ inputs.credentials-json }}
+    - id: auth
+      uses: google-github-actions/auth@v0
+      with:
+        credentials_json: ${{ inputs.credentials-json }}
+    - name: Setup gcloud
+      uses: google-github-actions/setup-gcloud@v0.3.0
+      with:
+        project_id: ${{ inputs.project-id }}
+    - name: Prepare for skaffold and tests
       shell: bash
-    - id: random-number-generator
-      run: echo "::set-output name=random-id::$(echo $RANDOM)"
+      run: |
+        git config --global url."https://${{ inputs.token }}@github.com".insteadOf "https://github.com"
+        gcloud auth configure-docker ${{ inputs.region }}-docker.pkg.dev
+        mkdir ${GITHUB_WORKSPACE}/skaffold-logs
+    - name: Create Kind cluster
+      uses: engineerd/setup-kind@v0.5.0
+      with:
+        version: "v0.11.1"
+    - name: Run Dependencies
+      if: inputs.dependencies != ''
+      env:
+        GITHUB_TOKEN: ${{ inputs.token }}
+        HELM_EXPERIMENTAL_OCI: 1
       shell: bash
-    - run: ${{ github.action_path }}/goodbye.sh
+      run: ${{ github.action_path }}/run-dependencies.sh ${{ inputs.dependencies }}
+#    - name: Install dependent charts
+#      if: inputs.helm-charts != '[]'
+#      shell: bash
+#      env:
+#        HELM_EXPERIMENTAL_OCI: 1
+#      run: |
+#        echo 'helm-charts is: ${{ inputs.helm-charts }}'
+#        repo=oci://${{ steps.auth.outputs.baseUrl }}/${{ inputs.project-id }}/${{ inputs.repository }}
+#        node ${{ github.action_path }}/helm.js --charts='${{ inputs.helm-charts }}' --repo=$repo --timeout ${{ inputs.helm-install-wait-timeout }}
+    - name: Run app via skaffold
+      env:
+        SKAFFOLD_ACTIONS: true
+        HELM_EXPERIMENTAL_OCI: 1
       shell: bash
+      working-directory: app
+      run: |
+        skaffold run --tail --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
+    - name: Wait for ready
+      if: inputs.wait-for-ports != ''
+      uses: swarm-io/actions-wait-for-ports@v1
+      with:
+        ports: ${{ inputs.wait-for-ports }}
+        max-wait: ${{ inputs.max-wait }}
+        check-interval: ${{ inputs.check-interval }}
+    - name: Run tests
+      shell: bash
+      working-directory: app/${{ inputs.test-working-directory }}
+      run: |
+        sleep ${{ inputs.sleep }}
+        ${{ inputs.test-command }}
+    - name: Report status on failure
+      if: always()
+      shell: bash
+      run: |
+        kubectl get all --all-namespaces
+        for i in ${GITHUB_WORKSPACE}/skaffold-logs/*.txt
+        do
+          echo "logs for $i"
+          cat $i
+        done
