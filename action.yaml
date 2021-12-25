@@ -139,7 +139,7 @@ runs:
       shell: bash
       working-directory: app
       run: |
-        skaffold run --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
+        skaffold run --tail --port-forward=user --verbosity=info > ${GITHUB_WORKSPACE}/skaffold-logs/app.txt &
     - name: Wait for ready
       if: inputs.wait-for-ports != ''
       uses: swarm-io/actions-wait-for-ports@v1
