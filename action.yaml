@@ -9,10 +9,6 @@ inputs:
     description: 'Git ref to use'
     required: false
     default: ${{ github.ref }}
-  ref:
-    description: 'Git ref to use. Defaults to head_ref to account for buf-generate pushing changes'
-    required: false
-    default: github.head_ref
   test-command:
     description: 'What test command to run'
     required: false
