@@ -1,3 +1,10 @@
+## [1.0.2](https://github.com/swarm-io/action-kind-test/compare/v1.0.1...v1.0.2) (2022-01-06)
+
+
+### Bug Fixes
+
+* Fixed defaults, changed default ref to github.ref ([#3](https://github.com/swarm-io/action-kind-test/issues/3)) ([009f396](https://github.com/swarm-io/action-kind-test/commit/009f396f5ac761fbc6c62004e8ae524e204fd105))
+
 ## [1.0.1](https://github.com/swarm-io/action-kind-test/compare/v1.0.0...v1.0.1) (2021-12-25)
 
 
