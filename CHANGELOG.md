@@ -1,3 +1,10 @@
+## [1.0.3](https://github.com/swarm-io/action-kind-test/compare/v1.0.2...v1.0.3) (2022-01-13)
+
+
+### Bug Fixes
+
+* Add helm repo ([#4](https://github.com/swarm-io/action-kind-test/issues/4)) ([d78be0f](https://github.com/swarm-io/action-kind-test/commit/d78be0f0710ebf7cdbb875939b8f74994835417c))
+
 ## [1.0.2](https://github.com/swarm-io/action-kind-test/compare/v1.0.1...v1.0.2) (2022-01-06)
 
 

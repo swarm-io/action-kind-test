@@ -76,28 +76,48 @@ Creates a kind cluster, installs helm charts, runs an app via skaffold, and runs
     # Seconds to sleep before running tests
     # Default: 10
     sleep: ""
+
+    # Helm repository name to add
+    # Default: swarm
+    helm-repo-name: ""
+
+    # Helm repository url
+    # Default: https://raw.githubusercontent.com/${{ github.repository_owner }}/charts/main
+    helm-repo-url: ""
+
+    # Helm repository username
+    # Default:
+    helm-repo-username: ""
+
+    # Helm repository password
+    # Default:
+    helm-repo-password: ""
 ```
 
 <!-- end usage -->
 <!-- start inputs -->
 
-| **Input**                       | **Description**                                                                                                                                            |      **Default**      | **Required** |
-| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :-------------------: | :----------: |
-| **`token`**                     | Github token, if there are dependencies, this should be a PAT so that the other repos can be cloned                                                        | `${{ github.token }}` |  **false**   |
-| **`ref`**                       | Git ref to use                                                                                                                                             |  `${{ github.ref }}`  |  **false**   |
-| **`test-command`**              | What test command to run                                                                                                                                   |       `go test`       |  **false**   |
-| **`test-working-directory`**    | Directory to run tests from                                                                                                                                |        `test`         |  **false**   |
-| **`wait-for-ports`**            | Ports to wait for, used for dependent charts, if those charts need exposed local ports as part of testing. Comma separated list such as `8000,8001`        |                       |  **false**   |
-| **`max-wait`**                  | Max time in milliseconds to wait for readiness on ports set in `wait-for-ports`                                                                            |       `300000`        |  **false**   |
-| **`check-interval`**            | Interval to check readiness on ports set in `wait-for-ports`                                                                                               |        `5000`         |  **false**   |
-| **`helm-charts`**               | Helm charts to install, a json formatted string, that is a list of objects                                                                                 |         `[]`          |  **false**   |
-| **`credentials-json`**          | Gcloud service account credentials json. This is required if you are installing helm charts                                                                |                       |  **false**   |
-| **`project-id`**                | gcloud project id. This is required if you are installing helm charts                                                                                      |                       |  **false**   |
-| **`region`**                    | artifact registry region                                                                                                                                   |      `us-west1`       |  **false**   |
-| **`repository`**                | artifact registry repository                                                                                                                               |       `charts`        |  **false**   |
-| **`helm-install-wait-timeout`** | How long to wait for installed charts to be healthy before failing                                                                                         |         `3m`          |  **false**   |
-| **`dependencies`**              | Other git repos in this organization to clone and run skaffold for. Should be a comma separated list of short repository names, excluding the organization |                       |  **false**   |
-| **`sleep`**                     | Seconds to sleep before running tests                                                                                                                      |         `10`          |  **false**   |
+| **Input**                       | **Description**                                                                                                                                            |                                  **Default**                                   | **Required** |
+| :------------------------------ | :--------------------------------------------------------------------------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------: | :----------: |
+| **`token`**                     | Github token, if there are dependencies, this should be a PAT so that the other repos can be cloned                                                        |                             `${{ github.token }}`                              |  **false**   |
+| **`ref`**                       | Git ref to use                                                                                                                                             |                              `${{ github.ref }}`                               |  **false**   |
+| **`test-command`**              | What test command to run                                                                                                                                   |                                   `go test`                                    |  **false**   |
+| **`test-working-directory`**    | Directory to run tests from                                                                                                                                |                                     `test`                                     |  **false**   |
+| **`wait-for-ports`**            | Ports to wait for, used for dependent charts, if those charts need exposed local ports as part of testing. Comma separated list such as `8000,8001`        |                                                                                |  **false**   |
+| **`max-wait`**                  | Max time in milliseconds to wait for readiness on ports set in `wait-for-ports`                                                                            |                                    `300000`                                    |  **false**   |
+| **`check-interval`**            | Interval to check readiness on ports set in `wait-for-ports`                                                                                               |                                     `5000`                                     |  **false**   |
+| **`helm-charts`**               | Helm charts to install, a json formatted string, that is a list of objects                                                                                 |                                      `[]`                                      |  **false**   |
+| **`credentials-json`**          | Gcloud service account credentials json. This is required if you are installing helm charts                                                                |                                                                                |  **false**   |
+| **`project-id`**                | gcloud project id. This is required if you are installing helm charts                                                                                      |                                                                                |  **false**   |
+| **`region`**                    | artifact registry region                                                                                                                                   |                                   `us-west1`                                   |  **false**   |
+| **`repository`**                | artifact registry repository                                                                                                                               |                                    `charts`                                    |  **false**   |
+| **`helm-install-wait-timeout`** | How long to wait for installed charts to be healthy before failing                                                                                         |                                      `3m`                                      |  **false**   |
+| **`dependencies`**              | Other git repos in this organization to clone and run skaffold for. Should be a comma separated list of short repository names, excluding the organization |                                                                                |  **false**   |
+| **`sleep`**                     | Seconds to sleep before running tests                                                                                                                      |                                      `10`                                      |  **false**   |
+| **`helm-repo-name`**            | Helm repository name to add                                                                                                                                |                                    `swarm`                                     |  **false**   |
+| **`helm-repo-url`**             | Helm repository url                                                                                                                                        | `https://raw.githubusercontent.com/${{ github.repository_owner }}/charts/main` |  **false**   |
+| **`helm-repo-username`**        | Helm repository username                                                                                                                                   |                                                                                |  **false**   |
+| **`helm-repo-password`**        | Helm repository password                                                                                                                                   |                                                                                |  **false**   |
 
 <!-- end inputs -->
 <!-- start outputs -->
