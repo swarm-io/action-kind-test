@@ -15,6 +15,5 @@ jobs:
             fix
             feat
             norelease
-          validateSingleCommit: true
         env:
           GITHUB_TOKEN: ${{ github.token }}

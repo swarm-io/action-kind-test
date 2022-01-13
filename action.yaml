@@ -59,6 +59,22 @@ inputs:
     description: 'Seconds to sleep before running tests'
     required: false
     default: 10
+  helm-repo-name:
+    description: 'Helm repository name to add'
+    required: false
+    default: swarm
+  helm-repo-url:
+    description: 'Helm repository url'
+    required: false
+    default: 'https://raw.githubusercontent.com/${{ github.repository_owner }}/charts/main'
+  helm-repo-username:
+    description: 'Helm repository username'
+    required: false
+    default: ''
+  helm-repo-password:
+    description: 'Helm repository password'
+    required: false
+    default: ''
 runs:
   using: "composite"
   steps:
@@ -98,6 +114,10 @@ runs:
       with:
         helm: '3.7.2'
         skaffold: '1.35.0'
+    - name: Add helm repository
+      shell: bash
+      run: |
+        helm repo add ${{ inputs.helm-repo-name}} ${{ inputs.helm-repo-url}} --username ${{ inputs.helm-repo-username }} --password ${{ inputs.helm-repo-password }}
     - name: Set up Docker Buildx
       uses: docker/setup-buildx-action@v1.6.0
     - uses: google-github-actions/auth@v0
