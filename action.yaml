@@ -70,11 +70,11 @@ inputs:
   helm-repo-username:
     description: 'Helm repository username'
     required: false
-    default: ''
+    default: '${{ inputs.token }}'
   helm-repo-password:
     description: 'Helm repository password'
     required: false
-    default: ''
+    default: '${{ inputs.token }}''
 runs:
   using: "composite"
   steps:
