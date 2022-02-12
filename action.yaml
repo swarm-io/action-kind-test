@@ -119,7 +119,7 @@ runs:
         helm: '3.7.2'
         skaffold: '1.35.0'
     - name: Add helm repository
-      if: inputs.add-private-helm-repo
+      if: inputs.add-private-helm-repo == 'true'
       shell: bash
       run: |
         helm repo add ${{ inputs.helm-repo-name}} ${{ inputs.helm-repo-url}} --username ${{ inputs.helm-repo-username }} --password ${{ inputs.helm-repo-password }}
