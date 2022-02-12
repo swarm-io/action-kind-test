@@ -77,6 +77,10 @@ Creates a kind cluster, installs helm charts, runs an app via skaffold, and runs
     # Default: 10
     sleep: ""
 
+    # set to true to add a private helm repo
+    # Default: false
+    add-private-helm-repo: ""
+
     # Helm repository name to add
     # Default: swarm
     helm-repo-name: ""
@@ -114,6 +118,7 @@ Creates a kind cluster, installs helm charts, runs an app via skaffold, and runs
 | **`helm-install-wait-timeout`** | How long to wait for installed charts to be healthy before failing                                                                                         |                                      `3m`                                      |  **false**   |
 | **`dependencies`**              | Other git repos in this organization to clone and run skaffold for. Should be a comma separated list of short repository names, excluding the organization |                                                                                |  **false**   |
 | **`sleep`**                     | Seconds to sleep before running tests                                                                                                                      |                                      `10`                                      |  **false**   |
+| **`add-private-helm-repo`**     | set to true to add a private helm repo                                                                                                                     |                                                                                |  **false**   |
 | **`helm-repo-name`**            | Helm repository name to add                                                                                                                                |                                    `swarm`                                     |  **false**   |
 | **`helm-repo-url`**             | Helm repository url                                                                                                                                        | `https://raw.githubusercontent.com/${{ github.repository_owner }}/charts/main` |  **false**   |
 | **`helm-repo-username`**        | Helm repository username                                                                                                                                   |                                                                                |  **false**   |

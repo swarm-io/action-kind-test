@@ -1,3 +1,10 @@
+## [1.0.5](https://github.com/swarm-io/action-kind-test/compare/v1.0.4...v1.0.5) (2022-02-12)
+
+
+### Bug Fixes
+
+* Main helm defaults ([#6](https://github.com/swarm-io/action-kind-test/issues/6)) ([a6490a4](https://github.com/swarm-io/action-kind-test/commit/a6490a41f3800747081df1ce7caf77282567a3af))
+
 ## [1.0.4](https://github.com/swarm-io/action-kind-test/compare/v1.0.3...v1.0.4) (2022-02-05)
 
 
