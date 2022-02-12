@@ -184,10 +184,11 @@ runs:
         sleep ${{ inputs.sleep }}
         ${{ inputs.test-command }}
     - name: Report status on failure
-      if: always()
+      if: failure()
       shell: bash
       run: |
         kubectl get all --all-namespaces
+        kubectl describe pods --all-namespaces
         for i in ${GITHUB_WORKSPACE}/skaffold-logs/*.txt
         do
           echo "logs for $i"

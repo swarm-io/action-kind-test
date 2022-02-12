@@ -1,3 +1,10 @@
+## [1.0.4](https://github.com/swarm-io/action-kind-test/compare/v1.0.3...v1.0.4) (2022-02-05)
+
+
+### Bug Fixes
+
+* Update to only print logs on failure. Also describe pods, sometimes pods are pending and it causes failures but I can't see why they're pending. ([#5](https://github.com/swarm-io/action-kind-test/issues/5)) ([3bb8ccf](https://github.com/swarm-io/action-kind-test/commit/3bb8ccf1d39a4cd83292f01b0bbc7f6153281b70))
+
 ## [1.0.3](https://github.com/swarm-io/action-kind-test/compare/v1.0.2...v1.0.3) (2022-01-13)
 
 
