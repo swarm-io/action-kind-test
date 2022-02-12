@@ -59,6 +59,10 @@ inputs:
     description: 'Seconds to sleep before running tests'
     required: false
     default: 10
+  add-private-helm-repo:
+    description: 'set to true to add a private helm repo'
+    required: false
+    default: false
   helm-repo-name:
     description: 'Helm repository name to add'
     required: false
@@ -115,6 +119,7 @@ runs:
         helm: '3.7.2'
         skaffold: '1.35.0'
     - name: Add helm repository
+      if: inputs.add-private-helm-repo == 'true'
       shell: bash
       run: |
         helm repo add ${{ inputs.helm-repo-name}} ${{ inputs.helm-repo-url}} --username ${{ inputs.helm-repo-username }} --password ${{ inputs.helm-repo-password }}
